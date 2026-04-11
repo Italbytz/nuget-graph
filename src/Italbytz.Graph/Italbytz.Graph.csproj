@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <Description>Graph data structures and solver implementations.</Description>
+    <PackageId>Italbytz.Graph</PackageId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Msagl" />
+    <PackageReference Include="QuikGraph" />
+    <PackageReference Include="QuikGraph.Graphviz" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../Italbytz.Graph.Abstractions/Italbytz.Graph.Abstractions.csproj" />
+    <ProjectReference Include="../../../nuget-foundation/src/Italbytz.Common.Random/Italbytz.Common.Random.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageVersion Include="Microsoft.Maui.Controls" Version="10.0.20" />
+    <PackageVersion Include="Microsoft.Msagl" Version="1.1.6" />
+    <PackageVersion Include="QuikGraph" Version="2.5.0" />
+    <PackageVersion Include="QuikGraph.Graphviz" Version="2.5.0" />
+  </ItemGroup>
+</Project>
