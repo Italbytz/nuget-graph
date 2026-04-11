@@ -13,6 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="../Italbytz.Graph.Abstractions/Italbytz.Graph.Abstractions.csproj" />
-    <ProjectReference Include="../../../nuget-foundation/src/Italbytz.Common.Random/Italbytz.Common.Random.csproj" />
+    <PackageReference Include="Italbytz.Common.Random" />
   </ItemGroup>
 </Project>
