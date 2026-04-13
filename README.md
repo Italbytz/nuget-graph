@@ -1,5 +1,7 @@
 # nuget-graph
 
+[![Documentation](https://img.shields.io/badge/Documentation-GitHub%20Pages-blue?style=for-the-badge)](https://italbytz.github.io/nuget-graph/)
+
 `nuget-graph` bundles the refactored `Italbytz.Graph.*` package family for reusable graph contracts, solver implementations, and .NET MAUI drawing helpers.
 
 ## Which package should I use?
