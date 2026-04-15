@@ -17,6 +17,11 @@ namespace Italbytz.Graph
             Graph = graph.ToGenericGraph();
         }
 
+        public MinimumSpanningTreeParameters(Italbytz.Graph.Abstractions.IUndirectedGraph<string, ITaggedEdge<string, double>> graph)
+        {
+            Graph = graph;
+        }
+
         private QuikGraph.UndirectedGraph<string, QuikGraph.TaggedEdge<string, double>> CreateRandomGraph()
         {
             var graph = new QuikGraph.UndirectedGraph<string, QuikGraph.TaggedEdge<string, double>>();
