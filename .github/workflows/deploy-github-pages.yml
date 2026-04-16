@@ -1,0 +1,62 @@
+name: Deploy Blazor Sample to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Pack local packages
+        run: dotnet pack nuget-graph.sln --configuration Release --output ./artifacts/packages
+
+      - name: Restore Blazor sample
+        run: dotnet restore samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj
+
+      - name: Publish Blazor sample
+        run: dotnet publish samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj --configuration Release --output ./artifacts/pages
+
+      - name: Prepare GitHub Pages artifact
+        run: |
+          sed -i 's#<base href="/" />#<base href="/nuget-graph/" />#' ./artifacts/pages/wwwroot/index.html
+          cp ./artifacts/pages/wwwroot/index.html ./artifacts/pages/wwwroot/404.html
+          touch ./artifacts/pages/wwwroot/.nojekyll
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./artifacts/pages/wwwroot
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

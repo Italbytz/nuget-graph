@@ -11,6 +11,14 @@ dotnet pack ./nuget-graph.sln -c Release --output ./artifacts/packages
 dotnet run --project ./samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj
 ```
 
+## Deploy to GitHub Pages
+
+The repository now contains a dedicated GitHub Pages workflow that publishes this sample as a static Blazor WebAssembly app. The target URL is:
+
+```text
+https://italbytz.github.io/nuget-graph/
+```
+
 ## What it shows
 
 - switching between a compact and a larger weighted graph
