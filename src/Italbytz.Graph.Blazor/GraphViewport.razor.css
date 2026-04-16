@@ -1,0 +1,391 @@
+.graph-viewport-shell {
+    display: grid;
+    gap: 1rem;
+    animation: graph-viewport-fade-in 260ms ease-out;
+}
+
+.graph-viewport-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.85rem;
+    align-items: center;
+}
+
+.graph-viewport-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+}
+
+.graph-viewport-hint {
+    margin: 0;
+    color: #58708c;
+    font-size: 0.92rem;
+}
+
+.graph-viewport-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.graph-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.45rem 0.75rem;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(255, 255, 255, 0.84);
+    color: #31465f;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.graph-status-pill-current {
+    border-color: rgba(22, 101, 52, 0.26);
+    background: rgba(220, 252, 231, 0.95);
+}
+
+.graph-status-pill-frontier {
+    border-color: rgba(161, 98, 7, 0.26);
+    background: rgba(254, 240, 138, 0.9);
+}
+
+.graph-status-pill-explored {
+    border-color: rgba(71, 85, 105, 0.22);
+    background: rgba(226, 232, 240, 0.9);
+}
+
+.graph-status-pill-active {
+    border-color: rgba(37, 99, 235, 0.24);
+    background: rgba(219, 234, 254, 0.94);
+}
+
+.graph-status-pill-successor {
+    border-color: rgba(217, 119, 6, 0.24);
+    background: rgba(254, 243, 199, 0.94);
+}
+
+.graph-viewport-stage {
+    position: relative;
+    min-height: 32rem;
+    border-radius: 24px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background:
+        radial-gradient(circle at top, rgba(191, 219, 254, 0.2), transparent 42%),
+        radial-gradient(circle at 82% 18%, rgba(254, 249, 195, 0.45), transparent 24%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.96));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none;
+}
+
+.graph-viewport-stage::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.08));
+}
+
+.graph-viewport-stage.graph-viewport-dragging {
+    cursor: grabbing;
+}
+
+.graph-viewport-stage:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.28);
+    outline-offset: 3px;
+}
+
+.graph-viewport-svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    min-height: 32rem;
+    user-select: none;
+}
+
+.graph-viewport-content {
+    transform-origin: 0 0;
+}
+
+.graph-edge,
+.graph-node {
+    cursor: pointer;
+}
+
+.graph-edge-path {
+    fill: none;
+    stroke: rgba(148, 163, 184, 0.9);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: stroke 0.18s ease, stroke-width 0.18s ease, opacity 0.18s ease;
+}
+
+.graph-edge:hover .graph-edge-path {
+    stroke-width: 3.5;
+}
+
+.graph-edge-label rect {
+    fill: rgba(255, 255, 255, 0.96);
+    stroke: rgba(148, 163, 184, 0.36);
+    transition: fill 0.18s ease, stroke 0.18s ease;
+}
+
+.graph-edge-label text {
+    fill: #18314f;
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+.graph-edge-active .graph-edge-path {
+    stroke: #2563eb;
+    stroke-width: 4;
+}
+
+.graph-edge-successor .graph-edge-path {
+    stroke: #d97706;
+    stroke-width: 3.5;
+    stroke-dasharray: 10 8;
+    animation: graph-viewport-dash-flow 1.1s linear infinite;
+}
+
+.graph-edge-successor .graph-edge-label rect {
+    fill: rgba(254, 243, 199, 0.98);
+    stroke: rgba(217, 119, 6, 0.32);
+}
+
+.graph-edge-active .graph-edge-label rect {
+    fill: rgba(219, 234, 254, 0.98);
+    stroke: rgba(37, 99, 235, 0.35);
+}
+
+.graph-edge-solution .graph-edge-path {
+    stroke: #16a34a;
+    stroke-width: 3;
+}
+
+.graph-edge-solution .graph-edge-label rect {
+    fill: rgba(220, 252, 231, 0.96);
+    stroke: rgba(22, 163, 74, 0.26);
+}
+
+.graph-edge-selected .graph-edge-path {
+    stroke: #ea580c;
+    stroke-width: 4.5;
+}
+
+.graph-edge-selected .graph-edge-label rect {
+    fill: rgba(255, 237, 213, 0.98);
+    stroke: rgba(234, 88, 12, 0.32);
+}
+
+.graph-node-shape {
+    fill: rgba(255, 255, 255, 0.98);
+    stroke: rgba(100, 116, 139, 0.92);
+    stroke-width: 2;
+    filter: url(#nodeShadow);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: fill 0.18s ease, stroke 0.18s ease, stroke-width 0.18s ease, transform 0.18s ease;
+}
+
+.graph-node:hover .graph-node-shape {
+    transform: scale(1.04);
+}
+
+.graph-node-text {
+    fill: #18314f;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+.graph-node-active .graph-node-shape {
+    fill: rgba(219, 234, 254, 0.98);
+    stroke: #2563eb;
+    stroke-width: 3;
+}
+
+.graph-node-current .graph-node-shape {
+    fill: rgba(220, 252, 231, 0.98);
+    stroke: #166534;
+    stroke-width: 3.5;
+    animation: graph-viewport-current-pulse 2s ease-in-out infinite;
+}
+
+.graph-node-frontier .graph-node-shape {
+    fill: rgba(254, 240, 138, 0.98);
+    stroke: #a16207;
+    stroke-width: 3;
+}
+
+.graph-node-explored .graph-node-shape {
+    fill: rgba(226, 232, 240, 0.96);
+    stroke: #475569;
+}
+
+.graph-node-solution .graph-node-shape {
+    fill: rgba(220, 252, 231, 0.96);
+    stroke: #16a34a;
+}
+
+.graph-node-selected .graph-node-shape {
+    fill: rgba(255, 237, 213, 0.98);
+    stroke: #ea580c;
+    stroke-width: 3.5;
+    animation: graph-viewport-selected-pulse 1.6s ease-in-out infinite;
+}
+
+.graph-viewport-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(16rem, 0.9fr);
+    gap: 1rem;
+}
+
+.graph-viewport-legend,
+.graph-viewport-inspector {
+    border-radius: 20px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(255, 255, 255, 0.82);
+    padding: 1rem 1.1rem;
+}
+
+.graph-viewport-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem 1.2rem;
+    align-items: center;
+}
+
+.graph-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: #334155;
+    font-size: 0.92rem;
+}
+
+.graph-legend-swatch {
+    width: 0.95rem;
+    height: 0.95rem;
+    border-radius: 999px;
+    border: 2px solid rgba(148, 163, 184, 0.9);
+    background: rgba(255, 255, 255, 0.98);
+}
+
+.graph-legend-swatch-active {
+    border-color: #2563eb;
+    background: rgba(219, 234, 254, 0.98);
+}
+
+.graph-legend-swatch-successor {
+    border-color: #d97706;
+    background: rgba(254, 243, 199, 0.98);
+}
+
+.graph-legend-swatch-current {
+    border-color: #166534;
+    background: rgba(220, 252, 231, 0.98);
+}
+
+.graph-legend-swatch-frontier {
+    border-color: #a16207;
+    background: rgba(254, 240, 138, 0.98);
+}
+
+.graph-legend-swatch-explored {
+    border-color: #475569;
+    background: rgba(226, 232, 240, 0.96);
+}
+
+.graph-legend-swatch-solution {
+    border-color: #16a34a;
+    background: rgba(220, 252, 231, 0.96);
+}
+
+.graph-viewport-inspector {
+    display: grid;
+    gap: 0.45rem;
+    align-content: start;
+}
+
+.graph-viewport-inspector h3,
+.graph-viewport-inspector p {
+    margin: 0;
+}
+
+@keyframes graph-viewport-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes graph-viewport-dash-flow {
+    from {
+        stroke-dashoffset: 0;
+    }
+
+    to {
+        stroke-dashoffset: -18;
+    }
+}
+
+@keyframes graph-viewport-current-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        stroke-width: 3.5;
+    }
+
+    50% {
+        transform: scale(1.05);
+        stroke-width: 4.25;
+    }
+}
+
+@keyframes graph-viewport-selected-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.03);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .graph-viewport-shell,
+    .graph-edge-successor .graph-edge-path,
+    .graph-node-current .graph-node-shape,
+    .graph-node-selected .graph-node-shape {
+        animation: none;
+    }
+}
+
+@media (max-width: 900px) {
+    .graph-viewport-footer {
+        grid-template-columns: 1fr;
+    }
+
+    .graph-viewport-stage,
+    .graph-viewport-svg {
+        min-height: 24rem;
+    }
+}

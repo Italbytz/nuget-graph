@@ -3,6 +3,7 @@
     <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
     <Description>Graph data structures and solver implementations.</Description>
     <PackageId>Italbytz.Graph</PackageId>
+    <PackageTags>$(PackageTags);visualization;msagl</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>

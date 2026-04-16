@@ -1,0 +1,19 @@
+# Italbytz.Graph.Blazor sample
+
+This sample demonstrates the reusable browser viewport from `Italbytz.Graph.Blazor` together with MST state generation from `Italbytz.Graph`.
+
+## Run locally
+
+Pack the local preview packages first if the `artifacts/packages` folder is empty.
+
+```bash
+dotnet pack ./nuget-graph.sln -c Release --output ./artifacts/packages
+dotnet run --project ./samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj
+```
+
+## What it shows
+
+- switching between a compact and a larger weighted graph
+- stepwise minimum-spanning-tree exploration
+- SVG pan, zoom, refit and keyboard navigation
+- use of the packaged `GraphViewport` component without consumer-specific application code

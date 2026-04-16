@@ -1,0 +1,39 @@
+:root {
+    color-scheme: light;
+    font-family: "Avenir Next", "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at top, rgba(191, 219, 254, 0.24), transparent 32%),
+        linear-gradient(180deg, #f8fbff, #eef4fb 56%, #f8fafc);
+    color: #1f3144;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: transparent;
+}
+
+h1,
+h2,
+h3 {
+    margin: 0 0 0.5rem;
+    line-height: 1.1;
+}
+
+.sample-shell {
+    width: min(1380px, calc(100vw - 2rem));
+    margin: 0 auto;
+    padding: 1.5rem 0 3rem;
+}
+
+section {
+    margin-bottom: 1.25rem;
+}
+
+a {
+    color: inherit;
+}

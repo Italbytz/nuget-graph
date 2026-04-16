@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <RootNamespace>Italbytz.Graph.Blazor.Sample</RootNamespace>
+    <IsPackable>false</IsPackable>
+    <RestoreAdditionalProjectSources>$(MSBuildThisFileDirectory)..\..\artifacts\packages</RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Italbytz.Graph" />
+    <PackageReference Include="Italbytz.Graph.Blazor" />
+  </ItemGroup>
+</Project>

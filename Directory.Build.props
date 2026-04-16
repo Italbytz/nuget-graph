@@ -20,8 +20,8 @@
     <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageTags>italbytz;graph;algorithms;maui</PackageTags>
-    <Version>1.0.0-preview.3</Version>
+    <PackageTags>italbytz;graph;algorithms</PackageTags>
+    <Version>1.0.0-preview.4</Version>
     <PackRelease>true</PackRelease>
   </PropertyGroup>
 

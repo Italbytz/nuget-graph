@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Description>Reusable Blazor graph viewport and interaction helpers.</Description>
+    <PackageId>Italbytz.Graph.Blazor</PackageId>
+    <PackageTags>$(PackageTags);blazor;svg;visualization</PackageTags>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Italbytz.Graph\Italbytz.Graph.csproj" />
+  </ItemGroup>
+</Project>

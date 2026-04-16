@@ -1,16 +1,8 @@
-﻿using System;
-using Microsoft.Msagl.Core.GraphAlgorithms;
-
-namespace Italbytz.Graph
+﻿namespace Italbytz.Graph
 {
-    public class BasicEdge : IEdge
+    public class WeightedEdge<TWeight> : BasicEdge
     {
-        public BasicEdge()
-        {
-        }
-
-        public int Source { get; set; }
-        public int Target { get; set; }
+        public TWeight? Weight { get; set; }
     }
 }
 

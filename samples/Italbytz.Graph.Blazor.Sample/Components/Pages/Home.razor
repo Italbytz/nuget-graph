@@ -1,0 +1,489 @@
+@page "/"
+
+<PageTitle>Italbytz.Graph.Blazor Sample</PageTitle>
+
+<section class="hero-card">
+    <div>
+        <p class="eyebrow">Italbytz.Graph.Blazor</p>
+        <h1>Graph algorithms viewport sample</h1>
+        <p class="hero-copy">This sample demonstrates how the core graph package, the visualization builders and the reusable Blazor viewport fit together for MST walkthroughs and shortest-path exploration.</p>
+    </div>
+
+    <div class="hero-meta">
+        <span class="meta-pill">Algorithms: 2</span>
+        <span class="meta-pill">Datasets: @VisibleDatasets.Count</span>
+        <span class="meta-pill">Steps: @(_scenario?.Steps.Count ?? 0)</span>
+        <span class="meta-pill">Current step: @_currentStep</span>
+    </div>
+</section>
+
+@if (_scenario is null)
+{
+    <section class="panel-card">
+        <p>Loading sample graph...</p>
+    </section>
+}
+else
+{
+    <section class="panel-card control-grid">
+        <div>
+            <label class="field-label" for="algorithm">Algorithm</label>
+            <select id="algorithm" class="dataset-select" value="@_selectedAlgorithmKey" @onchange="OnAlgorithmChanged">
+                <option value="mst">Minimum spanning tree</option>
+                <option value="shortest-paths">Shortest paths</option>
+            </select>
+        </div>
+
+        <div>
+            <label class="field-label" for="dataset">Dataset</label>
+            <select id="dataset" class="dataset-select" value="@_selectedDatasetKey" @onchange="OnDatasetChanged">
+                @foreach (var dataset in VisibleDatasets)
+                {
+                    <option value="@dataset.Key">@dataset.Title</option>
+                }
+            </select>
+        </div>
+
+        @if (string.Equals(_selectedAlgorithmKey, "shortest-paths", StringComparison.Ordinal))
+        {
+            <div>
+                <label class="field-label" for="source-node">Source node</label>
+                <select id="source-node" class="dataset-select" value="@_selectedShortestPathSource" @onchange="OnShortestPathSourceChanged">
+                    @foreach (var vertex in ShortestPathSources)
+                    {
+                        <option value="@vertex">@vertex</option>
+                    }
+                </select>
+            </div>
+        }
+
+        <div class="button-row">
+            <button class="action-button action-button-secondary" @onclick="PreviousStep" disabled="@(_currentStep == 0)">Previous step</button>
+            <button class="action-button" @onclick="NextStep" disabled="@(_currentStep >= _scenario.Steps.Count)">Next step</button>
+            <button class="action-button action-button-secondary" @onclick="ShowCompleteSolution" disabled="@(_currentStep >= _scenario.Steps.Count)">Show complete solution</button>
+            <button class="action-button action-button-ghost" @onclick="Reset">Reset</button>
+        </div>
+    </section>
+
+    <section class="summary-grid">
+        <article class="panel-card">
+            <p class="eyebrow">Current dataset</p>
+            <h2>@_scenario.Title</h2>
+            <p>@_scenario.Description</p>
+        </article>
+
+        <article class="panel-card">
+            <p class="eyebrow">Graph summary</p>
+            <ul class="metric-list">
+                <li><strong>Vertices</strong><span>@_scenario.VertexCount</span></li>
+                <li><strong>Edges</strong><span>@_scenario.EdgeCount</span></li>
+                <li><strong>@_scenario.AggregateLabel</strong><span>@_scenario.AggregateValue</span></li>
+                <li><strong>Progress</strong><span>@_currentStep/@_scenario.Steps.Count</span></li>
+            </ul>
+        </article>
+
+        <article class="panel-card">
+            <p class="eyebrow">Current state</p>
+            <h2>@CurrentStateTitle</h2>
+            <p>@CurrentStateDescription</p>
+        </article>
+    </section>
+
+    <section class="viewport-grid">
+        <article class="panel-card panel-card-graph">
+            <GraphViewport Graph="@_scenario.Graph"
+                           ActiveEdgeKeys="@CurrentState.ActiveEdgeKeys"
+                           ActiveNodeKeys="@CurrentState.ActiveNodeIds"
+                           FrontierNodeKeys="@CurrentState.FrontierNodeIds"
+                           ExploredNodeKeys="@CurrentState.ExploredNodeIds"
+                           CurrentNodeKey="@CurrentState.CurrentNodeId"
+                           SuccessorEdgeKeys="@CurrentState.SuccessorEdgeKeys"
+                           DirectedActiveEdgeIds="@CurrentState.DirectedActiveEdgeIds"
+                           DirectedSuccessorEdgeIds="@CurrentState.DirectedSuccessorEdgeIds"
+                           Title="@_scenario.Title"
+                           ZoomInLabel="Zoom in"
+                           ZoomOutLabel="Zoom out"
+                           FitLabel="Fit graph"
+                           ResetLabel="Reset"
+                           InteractionHint="Drag, zoom, double click to refit, or focus the canvas and use arrow keys with +, -, 0 and f."
+                           ActiveLegendLabel="@_scenario.ActiveLegendLabel"
+                           SuccessorLegendLabel="@_scenario.SuccessorLegendLabel"
+                           CurrentNodeLegendLabel="@_scenario.CurrentNodeLegendLabel"
+                           FrontierLegendLabel="Frontier"
+                           ExploredLegendLabel="Explored"
+                           SolutionLegendLabel="@_scenario.SolutionLegendLabel"
+                           DefaultLegendLabel="Alternative edge"
+                           InspectorTitle="Inspector"
+                           NoSelectionTitle="Nothing selected"
+                           NoSelectionText="Click a node or edge to inspect its state."
+                           NodeLabel="Node"
+                           EdgeLabel="Edge"
+                           WeightLabel="Weight"
+                           ConnectionsLabel="Connections"
+                           StateLabel="State" />
+        </article>
+
+        <article class="panel-card">
+            <p class="eyebrow">@_scenario.StepListLabel</p>
+            <ol class="step-list">
+                @foreach (var step in _scenario.Steps)
+                {
+                    <li class="@GetStepClass(step.Number)">
+                        <div>
+                            <strong>@step.Number. @step.EdgeLabel</strong>
+                            <p>@step.Description</p>
+                        </div>
+                        <span class="meta-pill">@step.Weight</span>
+                    </li>
+                }
+            </ol>
+        </article>
+    </section>
+
+    <section class="result-grid">
+        @foreach (var edge in IncludedEdges)
+        {
+            <article class="panel-card result-card">
+                <p class="eyebrow">@_scenario.ResultItemLabel</p>
+                <h3>@edge.Source - @edge.Target</h3>
+                <p>Weight: @edge.Weight</p>
+            </article>
+        }
+    </section>
+}
+
+@code {
+    private readonly IReadOnlyList<DatasetOption> _datasets =
+    [
+        new("mst", "tanenbaum", "Tanenbaum / Wetherall", "Compact textbook graph with a crisp MST progression."),
+        new("mst", "romania", "AIMA Romania", "Larger weighted map that shows how the viewport scales beyond the small teaching graph."),
+        new("shortest-paths", "romania-sp", "AIMA Romania shortest paths", "Shortest paths from Arad to multiple destinations, shown on the same reusable viewport.")
+    ];
+
+    private string _selectedAlgorithmKey = "mst";
+    private string _selectedDatasetKey = "tanenbaum";
+    private string _selectedShortestPathSource = "Arad";
+    private SampleScenario? _scenario;
+    private int _currentStep;
+
+    private IReadOnlyList<DatasetOption> VisibleDatasets => _datasets
+        .Where(option => option.AlgorithmKey == _selectedAlgorithmKey)
+        .ToArray();
+
+    private IReadOnlyList<string> ShortestPathSources => Graphs.Instance.AIMARomania.Edges
+        .SelectMany(edge => new[] { edge.Source, edge.Target })
+        .Distinct(StringComparer.Ordinal)
+        .OrderBy(vertex => vertex, StringComparer.Ordinal)
+        .ToArray();
+
+    private GraphStateViewModel CurrentState => _scenario is null
+        ? new GraphStateViewModel(string.Empty, [], [], [], [], [], [], [])
+        : _scenario.States[Math.Min(_currentStep, _scenario.States.Count - 1)];
+
+    private string CurrentStateTitle => _scenario is null
+        ? string.Empty
+        : _currentStep == 0
+            ? _scenario.InitialStateTitle
+            : $"Step {_currentStep}: {_scenario.Steps[_currentStep - 1].EdgeLabel}";
+
+    private string CurrentStateDescription => _scenario is null
+        ? string.Empty
+        : _currentStep == 0
+            ? _scenario.InitialStateDescription
+            : _scenario.Steps[_currentStep - 1].Description;
+
+    private IReadOnlySet<string> IncludedEdgeKeys => _scenario is null
+        ? new HashSet<string>(StringComparer.Ordinal)
+        : _scenario.Steps.Take(_currentStep)
+            .Select(step => step.EdgeKey)
+            .ToHashSet(StringComparer.Ordinal);
+
+    private IReadOnlyList<SampleEdge> IncludedEdges => _scenario is null
+        ? []
+        : _scenario.Edges.Where(edge => IncludedEdgeKeys.Contains(edge.EdgeKey)).ToArray();
+
+    protected override void OnInitialized()
+    {
+        LoadScenario();
+    }
+
+    private void OnDatasetChanged(ChangeEventArgs args)
+    {
+        var nextKey = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(nextKey) || nextKey == _selectedDatasetKey)
+        {
+            return;
+        }
+
+        _selectedDatasetKey = nextKey;
+        LoadScenario();
+    }
+
+    private void OnAlgorithmChanged(ChangeEventArgs args)
+    {
+        var nextKey = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(nextKey) || nextKey == _selectedAlgorithmKey)
+        {
+            return;
+        }
+
+        _selectedAlgorithmKey = nextKey;
+        _selectedDatasetKey = VisibleDatasets.First().Key;
+        LoadScenario();
+    }
+
+    private void OnShortestPathSourceChanged(ChangeEventArgs args)
+    {
+        var nextSource = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(nextSource) || string.Equals(nextSource, _selectedShortestPathSource, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _selectedShortestPathSource = nextSource;
+        LoadScenario();
+    }
+
+    private void LoadScenario()
+    {
+        var dataset = _datasets.First(option => option.Key == _selectedDatasetKey);
+
+        _scenario = dataset.AlgorithmKey == "shortest-paths"
+            ? BuildShortestPathScenario(dataset, _selectedShortestPathSource)
+            : BuildMinimumSpanningTreeScenario(dataset);
+
+        _currentStep = 0;
+    }
+
+    private SampleScenario BuildMinimumSpanningTreeScenario(DatasetOption dataset)
+    {
+        var graph = dataset.Key == "romania"
+            ? Graphs.Instance.AIMARomania
+            : Graphs.Instance.TanenbaumWetherall;
+
+        var solver = new MinimumSpanningTreeSolver();
+        var solution = solver.Solve(new MinimumSpanningTreeParameters(graph));
+        var orderedEdges = solution.Edges.ToArray();
+        var selectedEdgeKeys = orderedEdges
+            .Select(edge => GraphViewKeys.CreateUndirectedEdgeKey(edge.Source, edge.Target, edge.Tag))
+            .ToArray();
+
+        var edges = graph.Edges
+            .Select(edge => new SampleEdge(
+                edge.Source,
+                edge.Target,
+                edge.Tag.ToString("0.##", CultureInfo.InvariantCulture),
+                GraphViewKeys.CreateUndirectedEdgeKey(edge.Source, edge.Target, edge.Tag),
+                selectedEdgeKeys.Contains(GraphViewKeys.CreateUndirectedEdgeKey(edge.Source, edge.Target, edge.Tag))))
+            .OrderBy(edge => edge.Source, StringComparer.Ordinal)
+            .ThenBy(edge => edge.Target, StringComparer.Ordinal)
+            .ThenBy(edge => edge.Weight, StringComparer.Ordinal)
+            .ToArray();
+
+        var steps = orderedEdges
+            .Select((edge, index) => new SampleStep(
+                index + 1,
+                GraphViewKeys.CreateUndirectedEdgeKey(edge.Source, edge.Target, edge.Tag),
+                $"{edge.Source} - {edge.Target}",
+                edge.Tag.ToString("0.##", CultureInfo.InvariantCulture),
+                $"Add the lightest edge that connects the current tree to a new node: {edge.Source} - {edge.Target}."))
+            .ToArray();
+
+        var vertexCount = graph.Edges
+            .SelectMany(edge => new[] { edge.Source, edge.Target })
+            .Distinct(StringComparer.Ordinal)
+            .Count();
+
+        return new SampleScenario(
+            dataset.Title,
+            dataset.Description,
+            vertexCount,
+            graph.Edges.Count(),
+            "MST weight",
+            orderedEdges.Sum(edge => edge.Tag).ToString("0.##", CultureInfo.InvariantCulture),
+            "Initial frontier",
+            "The first node is active and the candidate edges are highlighted as the initial frontier.",
+            "Current tree",
+            "Candidate edges",
+            "Current node",
+            "Final solution",
+            "Selected MST edges",
+            "Included edge",
+            GraphViewFactory.BuildSvgGraphView(graph, selectedEdgeKeys),
+            GraphViewFactory.BuildMinimumSpanningTreeStates(graph, orderedEdges),
+            edges,
+            steps);
+
+    }
+
+    private SampleScenario BuildShortestPathScenario(DatasetOption dataset, string rootVertex)
+    {
+        var graph = Graphs.Instance.AIMARomania;
+        var vertices = graph.Edges
+            .SelectMany(edge => new[] { edge.Source, edge.Target })
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(vertex => vertex, StringComparer.Ordinal)
+            .ToArray();
+
+        var solver = new ShortestPathsSolver(rootVertex);
+        var solution = solver.Solve(new ShortestPathsParameters(vertices, graph));
+        var parsedPaths = solution.Paths
+            .Select(ParsePath)
+            .Where(path => !string.Equals(path.Target, rootVertex, StringComparison.Ordinal))
+            .OrderBy(path => path.Cost)
+            .ThenBy(path => path.Target, StringComparer.Ordinal)
+            .ToArray();
+
+        var shortestPathTreeKeys = parsedPaths
+            .SelectMany(path => path.EdgeKeys)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+
+        var graphView = GraphViewFactory.BuildSvgGraphView(graph, shortestPathTreeKeys);
+        var states = new List<GraphStateViewModel>
+        {
+            new(string.Empty, [rootVertex], [], [], [], [], [], [])
+        };
+
+        var steps = new List<SampleStep>();
+        for (var index = 0; index < parsedPaths.Length; index++)
+        {
+            var path = parsedPaths[index];
+            states.Add(new GraphStateViewModel(
+                path.Target,
+                path.NodeIds,
+                [],
+                path.NodeIds.Where(nodeId => !string.Equals(nodeId, path.Target, StringComparison.Ordinal)).ToArray(),
+                path.EdgeKeys,
+                [],
+                path.DirectedEdgeIds,
+                []));
+
+            steps.Add(new SampleStep(
+                index + 1,
+                path.EdgeKeys.LastOrDefault() ?? string.Empty,
+                $"{rootVertex} -> {path.Target}",
+                path.Cost.ToString("0.##", CultureInfo.InvariantCulture),
+                $"Highlight the shortest route from {rootVertex} to {path.Target}: {string.Join(" -> ", path.NodeIds)} ({path.Cost:0.##})."));
+        }
+
+        var edges = graph.Edges
+            .Select(edge => new SampleEdge(
+                edge.Source,
+                edge.Target,
+                edge.Tag.ToString("0.##", CultureInfo.InvariantCulture),
+                GraphViewKeys.CreateUndirectedEdgeKey(edge.Source, edge.Target, edge.Tag),
+                shortestPathTreeKeys.Contains(GraphViewKeys.CreateUndirectedEdgeKey(edge.Source, edge.Target, edge.Tag))))
+            .OrderBy(edge => edge.Source, StringComparer.Ordinal)
+            .ThenBy(edge => edge.Target, StringComparer.Ordinal)
+            .ThenBy(edge => edge.Weight, StringComparer.Ordinal)
+            .ToArray();
+
+        return new SampleScenario(
+            dataset.Title,
+            dataset.Description,
+            vertices.Length,
+            graph.Edges.Count(),
+            "Source",
+            rootVertex,
+            "Initial source state",
+            $"The source node {rootVertex} is selected. Advance to inspect the shortest route to each target.",
+            "Focused route",
+            "Other tree edges",
+            "Target node",
+            "Shortest-path tree",
+            "Shortest routes",
+            "Route edge",
+            graphView,
+            states,
+            edges,
+            steps);
+    }
+
+    private void PreviousStep()
+    {
+        if (_currentStep > 0)
+        {
+            _currentStep--;
+        }
+    }
+
+    private void NextStep()
+    {
+        if (_scenario is not null && _currentStep < _scenario.Steps.Count)
+        {
+            _currentStep++;
+        }
+    }
+
+    private void ShowCompleteSolution()
+    {
+        if (_scenario is not null)
+        {
+            _currentStep = _scenario.Steps.Count;
+        }
+    }
+
+    private void Reset() => _currentStep = 0;
+
+    private string GetStepClass(int stepNumber) => stepNumber <= _currentStep ? "step-item step-item-active" : "step-item";
+
+    private static ParsedPath ParsePath(string value)
+    {
+        var costStart = value.LastIndexOf('(');
+        var cost = double.Parse(value[(costStart + 1)..^1], CultureInfo.InvariantCulture);
+        var nodes = value[..costStart]
+            .Split(" -> ", StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
+
+        var edgeKeys = new List<string>();
+        var directedEdgeIds = new List<string>();
+        for (var index = 0; index < nodes.Length - 1; index++)
+        {
+            var from = nodes[index];
+            var to = nodes[index + 1];
+            var edgeWeight = Graphs.Instance.AIMARomania.Edges
+                .First(edge =>
+                    (string.Equals(edge.Source, from, StringComparison.Ordinal) && string.Equals(edge.Target, to, StringComparison.Ordinal)) ||
+                    (string.Equals(edge.Source, to, StringComparison.Ordinal) && string.Equals(edge.Target, from, StringComparison.Ordinal)))
+                .Tag;
+
+            edgeKeys.Add(GraphViewKeys.CreateUndirectedEdgeKey(from, to, edgeWeight));
+            directedEdgeIds.Add(GraphViewKeys.CreateDirectedEdgeId(from, to));
+        }
+
+        return new ParsedPath(nodes.Last(), cost, nodes, edgeKeys.ToArray(), directedEdgeIds.ToArray());
+    }
+
+    private sealed record DatasetOption(string AlgorithmKey, string Key, string Title, string Description);
+
+    private sealed record SampleScenario(
+        string Title,
+        string Description,
+        int VertexCount,
+        int EdgeCount,
+        string AggregateLabel,
+        string AggregateValue,
+        string InitialStateTitle,
+        string InitialStateDescription,
+        string ActiveLegendLabel,
+        string SuccessorLegendLabel,
+        string CurrentNodeLegendLabel,
+        string SolutionLegendLabel,
+        string StepListLabel,
+        string ResultItemLabel,
+        GraphViewModel Graph,
+        IReadOnlyList<GraphStateViewModel> States,
+        IReadOnlyList<SampleEdge> Edges,
+        IReadOnlyList<SampleStep> Steps);
+
+    private sealed record SampleEdge(string Source, string Target, string Weight, string EdgeKey, bool IsPartOfSolution);
+
+    private sealed record SampleStep(int Number, string EdgeKey, string EdgeLabel, string Weight, string Description);
+
+    private sealed record ParsedPath(
+        string Target,
+        double Cost,
+        IReadOnlyList<string> NodeIds,
+        IReadOnlyList<string> EdgeKeys,
+        IReadOnlyList<string> DirectedEdgeIds);
+}
