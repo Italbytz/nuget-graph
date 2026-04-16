@@ -32,8 +32,11 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Pack local packages
-        run: dotnet pack nuget-graph.sln --configuration Release --output ./artifacts/packages
+      - name: Pack local Graph packages
+        run: |
+          mkdir -p ./artifacts/packages
+          dotnet pack src/Italbytz.Graph/Italbytz.Graph.csproj --configuration Release --output ./artifacts/packages
+          dotnet pack src/Italbytz.Graph.Blazor/Italbytz.Graph.Blazor.csproj --configuration Release --output ./artifacts/packages
 
       - name: Restore Blazor sample
         run: dotnet restore samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj
