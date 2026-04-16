@@ -35,6 +35,7 @@ jobs:
       - name: Pack local Graph packages
         run: |
           mkdir -p ./artifacts/packages
+          dotnet pack src/Italbytz.Graph.Abstractions/Italbytz.Graph.Abstractions.csproj --configuration Release --output ./artifacts/packages
           dotnet pack src/Italbytz.Graph/Italbytz.Graph.csproj --configuration Release --output ./artifacts/packages
           dotnet pack src/Italbytz.Graph.Blazor/Italbytz.Graph.Blazor.csproj --configuration Release --output ./artifacts/packages
 
