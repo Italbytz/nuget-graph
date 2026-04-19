@@ -1,15 +1,17 @@
 # API reference
 
-Die API-Referenz wird aus den Projektdateien erzeugt und deckt die zentralen Pakete der `Italbytz.Graph.*` Familie ab.
+The API reference is generated from the project source and covers the main packages in the `Italbytz.Graph.*` family.
 
-## Enthaltene Projekte
+## Included projects
 
 - `Italbytz.Graph.Abstractions`
 - `Italbytz.Graph`
 - `Italbytz.Graph.Blazor`
 
-## Einstieg in die Referenz
+## Start here
 
 - [Namespace and type index](toc.yml)
+- [Getting started](../articles/getting-started.md)
+- [Installation](../articles/installation.md)
 - [Package overview](../articles/overview.md)
-- [Live Blazor sample](../sample/index.md)
+- [Live sample](../sample/index.md)

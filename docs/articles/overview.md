@@ -1,31 +1,31 @@
 # Package overview
 
-Die Paketfamilie ist bewusst getrennt, damit Algorithmen, Verträge und UI-spezifische Darstellung unabhängig voneinander verwendbar bleiben.
+The package family is intentionally split so that algorithms, contracts, and UI-specific rendering can be composed independently.
 
 ## Packages
 
 ### Italbytz.Graph.Abstractions
 
-Verträge für Graphmodelle und Solver, zum Beispiel `IUndirectedGraph<TVertex, TEdge>` und solverbezogene Interfaces.
+Use this package when you need contracts for graph types and solver-facing abstractions such as `IUndirectedGraph<TVertex, TEdge>`.
 
 ### Italbytz.Graph
 
-Konkrete Graphimplementierungen, Minimum-Spanning-Tree- und Shortest-Path-Logik sowie UI-neutrale Visualisierungsmodelle.
+Use this package for concrete graph implementations, minimum spanning tree logic, shortest path logic, and UI-neutral state or visualization models.
 
 ### Italbytz.Graph.Blazor
 
-Wiederverwendbare Blazor-Komponenten für SVG-Viewport, Interaktion und Darstellung von Algorithmuszuständen im Browser.
+Use this package for reusable Blazor components such as the interactive SVG viewport and browser-side graph rendering helpers.
 
 ### Italbytz.Graph.Maui
 
-MAUI-spezifische Zeichen- und Rendering-Helfer für native Oberflächen.
+Use this package for .NET MAUI-specific drawing and rendering helpers.
 
-## Empfohlene Kombinationen
+## Recommended combinations
 
-- Nur Algorithmen: `Italbytz.Graph.Abstractions` + `Italbytz.Graph`
-- Blazor-Anwendung: `Italbytz.Graph` + `Italbytz.Graph.Blazor`
-- .NET MAUI-Anwendung: `Italbytz.Graph` + `Italbytz.Graph.Maui`
+- Algorithms only: `Italbytz.Graph.Abstractions` + `Italbytz.Graph`
+- Blazor application: `Italbytz.Graph` + `Italbytz.Graph.Blazor`
+- .NET MAUI application: `Italbytz.Graph` + `Italbytz.Graph.Maui`
 
-## Nächster Schritt
+## Next steps
 
-Für eine direkte Demonstration der Browser-Komponenten siehe [Blazor sample guide](sample.md) oder starte das [Live Blazor sample](../sample/index.md).
+Continue with [Getting started](getting-started.md), review the [Installation](installation.md) guide, or launch the [live sample](../sample/index.md).

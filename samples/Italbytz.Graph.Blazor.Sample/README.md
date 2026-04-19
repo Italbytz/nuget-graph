@@ -2,6 +2,8 @@
 
 This sample demonstrates the reusable browser viewport from `Italbytz.Graph.Blazor` together with MST state generation from `Italbytz.Graph`.
 
+It is intended as an external-facing usage sample for package consumers who want to evaluate the browser experience before integrating the packages into their own application.
+
 ## Run locally
 
 Pack the local preview packages first if the `artifacts/packages` folder is empty.

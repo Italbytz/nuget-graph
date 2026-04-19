@@ -1,5 +1,5 @@
 # Live sample
 
-Der Platzhalter existiert nur, damit DocFX den Link auf das veröffentlichte Sample während des Builds validieren kann.
+This placeholder exists only so DocFX can validate links to the published sample during the documentation build.
 
-Im finalen GitHub-Pages-Artefakt wird dieser Ordner durch das veröffentlichte Blazor WebAssembly Sample ersetzt.
+In the final GitHub Pages artifact, this folder is replaced by the published Blazor WebAssembly sample.
