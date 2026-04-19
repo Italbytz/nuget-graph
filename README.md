@@ -17,6 +17,12 @@
 - It demonstrates MST step navigation, graph-state rendering, browser pan/zoom, and the reusable `Italbytz.Graph.Blazor` viewport against graphs from `Italbytz.Graph`.
 - Run it locally with `dotnet run --project samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj`.
 
+## Documentation site
+
+- GitHub Pages now serves a combined site at `https://italbytz.github.io/nuget-graph/`.
+- The DocFX documentation lives at the site root.
+- The published Blazor WebAssembly sample is reachable under `https://italbytz.github.io/nuget-graph/sample/`.
+
 ## Blazor integration
 
 The current package split keeps browser rendering separate without overloading the core packages.

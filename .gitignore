@@ -4,3 +4,8 @@ artifacts/packages/
 .vs/
 *.user
 *.suo
+docs/_site/
+docs/api/.manifest
+docs/api/*.yml
+docs/api/toc.yml
+!docs/api/index.md

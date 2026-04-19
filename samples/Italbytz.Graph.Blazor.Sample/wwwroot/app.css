@@ -37,3 +37,26 @@ section {
 a {
     color: inherit;
 }
+
+.sample-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
+}
+
+.docs-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(59, 130, 246, 0.18);
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.06);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.docs-link:hover {
+    background: rgba(255, 255, 255, 0.92);
+}

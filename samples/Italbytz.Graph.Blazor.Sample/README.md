@@ -13,7 +13,13 @@ dotnet run --project ./samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazo
 
 ## Deploy to GitHub Pages
 
-The repository now contains a dedicated GitHub Pages workflow that publishes this sample as a static Blazor WebAssembly app. The target URL is:
+The repository now contains a GitHub Pages workflow that publishes a combined DocFX site plus this static Blazor WebAssembly sample. The sample URL is:
+
+```text
+https://italbytz.github.io/nuget-graph/sample/
+```
+
+The main documentation stays available at:
 
 ```text
 https://italbytz.github.io/nuget-graph/

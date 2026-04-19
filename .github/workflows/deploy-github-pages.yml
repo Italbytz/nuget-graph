@@ -1,4 +1,4 @@
-name: Deploy Blazor Sample to GitHub Pages
+name: Deploy Docs and Blazor Sample to GitHub Pages
 
 on:
   push:
@@ -29,6 +29,11 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Install DocFX
+        run: |
+          dotnet tool install --global docfx
+          echo "$HOME/.dotnet/tools" >> "$GITHUB_PATH"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
@@ -39,22 +44,28 @@ jobs:
           dotnet pack src/Italbytz.Graph/Italbytz.Graph.csproj --configuration Release --output ./artifacts/packages
           dotnet pack src/Italbytz.Graph.Blazor/Italbytz.Graph.Blazor.csproj --configuration Release --output ./artifacts/packages
 
+      - name: Build DocFX site
+        run: docfx docs/docfx.json
+
       - name: Restore Blazor sample
         run: dotnet restore samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj
 
       - name: Publish Blazor sample
-        run: dotnet publish samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj --configuration Release --output ./artifacts/pages
+        run: dotnet publish samples/Italbytz.Graph.Blazor.Sample/Italbytz.Graph.Blazor.Sample.csproj --configuration Release --output ./artifacts/sample-build
 
       - name: Prepare GitHub Pages artifact
         run: |
-          sed -i 's#<base href="/" />#<base href="/nuget-graph/" />#' ./artifacts/pages/wwwroot/index.html
-          cp ./artifacts/pages/wwwroot/index.html ./artifacts/pages/wwwroot/404.html
-          touch ./artifacts/pages/wwwroot/.nojekyll
+          mkdir -p ./artifacts/pages/sample
+          sed -i 's#<base href="/" />#<base href="/nuget-graph/sample/" />#' ./artifacts/sample-build/wwwroot/index.html
+          cp ./artifacts/sample-build/wwwroot/index.html ./artifacts/sample-build/wwwroot/404.html
+          cp -R ./docs/_site/. ./artifacts/pages
+          cp -R ./artifacts/sample-build/wwwroot/. ./artifacts/pages/sample
+          touch ./artifacts/pages/.nojekyll
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./artifacts/pages/wwwroot
+          path: ./artifacts/pages
 
   deploy:
     runs-on: ubuntu-latest

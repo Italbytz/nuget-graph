@@ -31,6 +31,14 @@ namespace Italbytz.Graph
                    EqualityComparer<TVertex>.Default.Equals(Target, edge.Target);
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                EqualityComparer<TVertex>.Default.GetHashCode(Source!),
+                EqualityComparer<TVertex>.Default.GetHashCode(Target!),
+                EqualityComparer<TTag>.Default.GetHashCode(Tag!));
+        }
+
         public override string ToString()
         {
             return string.Format("{0} -> {1} ({2})", Source, Target, Tag?.ToString() ?? "no tag");

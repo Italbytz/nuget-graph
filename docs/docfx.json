@@ -1,0 +1,54 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "src": "..",
+          "files": [
+            "src/Italbytz.Graph.Abstractions/Italbytz.Graph.Abstractions.csproj",
+            "src/Italbytz.Graph/Italbytz.Graph.csproj",
+            "src/Italbytz.Graph.Blazor/Italbytz.Graph.Blazor.csproj"
+          ]
+        }
+      ],
+      "dest": "api"
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": [
+          "index.md",
+          "toc.yml",
+          "articles/**/*.md",
+          "articles/**/toc.yml",
+          "sample/**/*.md",
+          "sample/**/toc.yml",
+          "api/**/*.yml",
+          "api/index.md",
+          "api/toc.yml"
+        ]
+      }
+    ],
+    "resource": [
+      {
+        "files": [
+          "images/**"
+        ]
+      }
+    ],
+    "dest": "_site",
+    "globalMetadata": {
+      "_appName": "nuget-graph",
+      "_appTitle": "nuget-graph",
+      "_enableSearch": true,
+      "_disableContribution": true,
+      "_disableBreadcrumb": false
+    },
+    "template": [
+      "default",
+      "modern"
+    ],
+    "markdownEngineName": "markdig"
+  }
+}
