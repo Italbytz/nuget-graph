@@ -3,15 +3,18 @@
     {
       "src": [
         {
-          "src": "..",
+          "src": "../src",
           "files": [
-            "src/Italbytz.Graph.Abstractions/Italbytz.Graph.Abstractions.csproj",
-            "src/Italbytz.Graph/Italbytz.Graph.csproj",
-            "src/Italbytz.Graph.Blazor/Italbytz.Graph.Blazor.csproj"
+            "Italbytz.Graph.Abstractions/Italbytz.Graph.Abstractions.csproj",
+            "Italbytz.Graph/Italbytz.Graph.csproj",
+            "Italbytz.Graph.Blazor/Italbytz.Graph.Blazor.csproj"
           ]
         }
       ],
-      "dest": "api"
+      "dest": "api",
+      "properties": {
+        "TargetFramework": "net8.0"
+      }
     }
   ],
   "build": {
