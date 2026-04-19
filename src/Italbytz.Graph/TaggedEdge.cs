@@ -33,10 +33,14 @@ namespace Italbytz.Graph
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(
-                EqualityComparer<TVertex>.Default.GetHashCode(Source!),
-                EqualityComparer<TVertex>.Default.GetHashCode(Target!),
-                EqualityComparer<TTag>.Default.GetHashCode(Tag!));
+            unchecked
+            {
+                var hash = 17;
+                hash = (hash * 23) + EqualityComparer<TVertex>.Default.GetHashCode(Source!);
+                hash = (hash * 23) + EqualityComparer<TVertex>.Default.GetHashCode(Target!);
+                hash = (hash * 23) + EqualityComparer<TTag>.Default.GetHashCode(Tag!);
+                return hash;
+            }
         }
 
         public override string ToString()
