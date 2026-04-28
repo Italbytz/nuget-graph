@@ -32,6 +32,7 @@ else
             <select id="algorithm" class="dataset-select" value="@_selectedAlgorithmKey" @onchange="OnAlgorithmChanged">
                 <option value="mst">Minimum spanning tree</option>
                 <option value="shortest-paths">Shortest paths</option>
+                <option value="tree-layout">Tree layout benchmark</option>
             </select>
         </div>
 
@@ -55,6 +56,31 @@ else
                         <option value="@vertex">@vertex</option>
                     }
                 </select>
+            </div>
+        }
+        else if (string.Equals(_selectedAlgorithmKey, "tree-layout", StringComparison.Ordinal))
+        {
+            <div>
+                <label class="field-label" for="tree-orientation">Orientation</label>
+                <select id="tree-orientation" class="dataset-select" value="@_treeOrientation" @onchange="OnTreeOrientationChanged">
+                    <option value="top-down">Top-down</option>
+                    <option value="left-to-right">Left-to-right</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="field-label" for="tree-horizontal">Horizontal spacing (@_treeHorizontalSpacing.ToString("0"))</label>
+                <input id="tree-horizontal" class="tree-slider" type="range" min="48" max="200" step="4" value="@_treeHorizontalSpacing" @oninput="OnTreeHorizontalSpacingChanged" />
+            </div>
+
+            <div>
+                <label class="field-label" for="tree-vertical">Vertical spacing (@_treeVerticalSpacing.ToString("0"))</label>
+                <input id="tree-vertical" class="tree-slider" type="range" min="80" max="220" step="5" value="@_treeVerticalSpacing" @oninput="OnTreeVerticalSpacingChanged" />
+            </div>
+
+            <div>
+                <label class="field-label" for="tree-root-spacing">Root spacing (@_treeRootSpacing.ToString("0.0"))</label>
+                <input id="tree-root-spacing" class="tree-slider" type="range" min="0" max="4" step="0.2" value="@_treeRootSpacing" @oninput="OnTreeRootSpacingChanged" />
             </div>
         }
 
@@ -158,12 +184,17 @@ else
     [
         new("mst", "tanenbaum", "Tanenbaum / Wetherall", "Compact textbook graph with a crisp MST progression."),
         new("mst", "romania", "AIMA Romania", "Larger weighted map that shows how the viewport scales beyond the small teaching graph."),
-        new("shortest-paths", "romania-sp", "AIMA Romania shortest paths", "Shortest paths from Arad to multiple destinations, shown on the same reusable viewport.")
+        new("shortest-paths", "romania-sp", "AIMA Romania shortest paths", "Shortest paths from Arad to multiple destinations, shown on the same reusable viewport."),
+        new("tree-layout", "wide-tree", "Wide tree layout benchmark", "Stress-test for very broad trees with configurable orientation and spacing.")
     ];
 
     private string _selectedAlgorithmKey = "mst";
     private string _selectedDatasetKey = "tanenbaum";
     private string _selectedShortestPathSource = "Arad";
+    private string _treeOrientation = "top-down";
+    private double _treeHorizontalSpacing = 88;
+    private double _treeVerticalSpacing = 130;
+    private double _treeRootSpacing = 1.2;
     private SampleScenario? _scenario;
     private int _currentStep;
 
@@ -245,13 +276,55 @@ else
         LoadScenario();
     }
 
+    private void OnTreeOrientationChanged(ChangeEventArgs args)
+    {
+        var nextOrientation = args.Value?.ToString();
+        if (string.IsNullOrWhiteSpace(nextOrientation) || string.Equals(nextOrientation, _treeOrientation, StringComparison.Ordinal))
+        {
+            return;
+        }
+
+        _treeOrientation = nextOrientation;
+        LoadScenario();
+    }
+
+    private void OnTreeHorizontalSpacingChanged(ChangeEventArgs args)
+    {
+        if (double.TryParse(args.Value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+        {
+            _treeHorizontalSpacing = value;
+            LoadScenario();
+        }
+    }
+
+    private void OnTreeVerticalSpacingChanged(ChangeEventArgs args)
+    {
+        if (double.TryParse(args.Value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+        {
+            _treeVerticalSpacing = value;
+            LoadScenario();
+        }
+    }
+
+    private void OnTreeRootSpacingChanged(ChangeEventArgs args)
+    {
+        if (double.TryParse(args.Value?.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var value))
+        {
+            _treeRootSpacing = value;
+            LoadScenario();
+        }
+    }
+
     private void LoadScenario()
     {
         var dataset = _datasets.First(option => option.Key == _selectedDatasetKey);
 
-        _scenario = dataset.AlgorithmKey == "shortest-paths"
-            ? BuildShortestPathScenario(dataset, _selectedShortestPathSource)
-            : BuildMinimumSpanningTreeScenario(dataset);
+        _scenario = dataset.AlgorithmKey switch
+        {
+            "shortest-paths" => BuildShortestPathScenario(dataset, _selectedShortestPathSource),
+            "tree-layout" => BuildTreeLayoutScenario(dataset),
+            _ => BuildMinimumSpanningTreeScenario(dataset)
+        };
 
         _currentStep = 0;
     }
@@ -399,6 +472,137 @@ else
             states,
             edges,
             steps);
+    }
+
+    private SampleScenario BuildTreeLayoutScenario(DatasetOption dataset)
+    {
+        var treeNodes = BuildWideTreeNodes();
+        var treeView = GraphViewFactory.BuildTreeGraphView(
+            treeNodes,
+            horizontalSpacing: _treeHorizontalSpacing,
+            verticalSpacing: _treeVerticalSpacing,
+            nodeRadius: 24,
+            padding: 40,
+            rootSpacing: _treeRootSpacing,
+            orientation: string.Equals(_treeOrientation, "left-to-right", StringComparison.Ordinal)
+                ? TreeLayoutOrientation.LeftToRight
+                : TreeLayoutOrientation.TopDown);
+
+        var byParent = treeNodes
+            .Where(node => !string.IsNullOrEmpty(node.ParentId))
+            .GroupBy(node => node.ParentId!, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.Ordinal);
+
+        var leafNodeIds = treeNodes
+            .Where(node => !byParent.ContainsKey(node.Id))
+            .Select(node => node.Id)
+            .ToArray();
+
+        var activeNodeIds = treeNodes
+            .Where(node => node.IsPartOfSolution)
+            .Select(node => node.Id)
+            .ToArray();
+
+        var activeEdgeKeys = treeNodes
+            .Where(node => node.IsPartOfSolution && !string.IsNullOrEmpty(node.ParentId))
+            .Select(node => $"{node.ParentId}->{node.Id}")
+            .ToArray();
+
+        var directedActiveEdgeIds = treeNodes
+            .Where(node => node.IsPartOfSolution && !string.IsNullOrEmpty(node.ParentId))
+            .Select(node => GraphViewKeys.CreateDirectedEdgeId(node.ParentId!, node.Id))
+            .ToArray();
+
+        var states = new List<GraphStateViewModel>
+        {
+            new(
+                "root-A",
+                activeNodeIds,
+                treeNodes.Where(node => !node.IsPartOfSolution).Select(node => node.Id).ToArray(),
+                leafNodeIds,
+                activeEdgeKeys,
+                [],
+                directedActiveEdgeIds,
+                [])
+        };
+
+        var steps = new List<SampleStep>
+        {
+            new(
+                1,
+                string.Empty,
+                "Layout quality checkpoint",
+                $"nodes={treeNodes.Count}",
+                "Inspect whether sibling subtrees stay separated and labels remain readable under Fit and Zoom.")
+        };
+
+        var sampleEdges = treeNodes
+            .Where(node => !string.IsNullOrEmpty(node.ParentId))
+            .Select(node => new SampleEdge(
+                node.ParentId!,
+                node.Id,
+                string.IsNullOrWhiteSpace(node.EdgeLabel) ? "-" : node.EdgeLabel,
+                $"{node.ParentId}->{node.Id}",
+                node.IsPartOfSolution))
+            .ToArray();
+
+        return new SampleScenario(
+            dataset.Title,
+            dataset.Description,
+            treeNodes.Count,
+            sampleEdges.Length,
+            "Orientation",
+            string.Equals(_treeOrientation, "left-to-right", StringComparison.Ordinal) ? "Left-to-right" : "Top-down",
+            "Initial tree state",
+            "This benchmark emphasizes very broad branching and mixed-depth subtrees to evaluate layout quality.",
+            "Highlighted path",
+            "Alternative branches",
+            "Root node",
+            "Preferred branch",
+            "Layout checks",
+            "Tree edge",
+            treeView,
+            states,
+            sampleEdges,
+            steps);
+    }
+
+    private static IReadOnlyList<TreeLayoutNode> BuildWideTreeNodes()
+    {
+        var nodes = new List<TreeLayoutNode>();
+        var order = 0;
+
+        nodes.Add(new TreeLayoutNode("root-A", "Root A", null, string.Empty, true, order++));
+        nodes.Add(new TreeLayoutNode("root-B", "Root B", null, string.Empty, false, order++));
+
+        for (var i = 1; i <= 10; i++)
+        {
+            var childA = $"A-{i}";
+            var childB = $"B-{i}";
+            var onPathA = i <= 4;
+
+            nodes.Add(new TreeLayoutNode(childA, childA, "root-A", i.ToString(CultureInfo.InvariantCulture), onPathA, order++));
+            nodes.Add(new TreeLayoutNode(childB, childB, "root-B", i.ToString(CultureInfo.InvariantCulture), false, order++));
+
+            for (var j = 1; j <= 5; j++)
+            {
+                var grandA = $"{childA}-{j}";
+                var grandB = $"{childB}-{j}";
+                var onPathGrandA = onPathA && j == 1;
+
+                nodes.Add(new TreeLayoutNode(grandA, grandA, childA, j.ToString(CultureInfo.InvariantCulture), onPathGrandA, order++));
+                nodes.Add(new TreeLayoutNode(grandB, grandB, childB, j.ToString(CultureInfo.InvariantCulture), false, order++));
+
+                if (j == 1)
+                {
+                    var deep = $"{grandA}-deep";
+                    nodes.Add(new TreeLayoutNode(deep, deep, grandA, "d", onPathGrandA, order++));
+                    nodes.Add(new TreeLayoutNode($"{deep}-leaf", $"{deep}-leaf", deep, "l", onPathGrandA, order++));
+                }
+            }
+        }
+
+        return nodes;
     }
 
     private void PreviousStep()
