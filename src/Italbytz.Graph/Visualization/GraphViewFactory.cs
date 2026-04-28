@@ -14,6 +14,92 @@ namespace Italbytz.Graph.Visualization;
 
 public static class GraphViewFactory
 {
+    public static GraphViewModel BuildTreeGraphView(
+        IReadOnlyCollection<TreeLayoutNode> treeNodes,
+        double horizontalSpacing = 120.0,
+        double verticalSpacing = 140.0,
+        double nodeRadius = 24.0,
+        double padding = 40.0)
+    {
+        if (treeNodes.Count == 0)
+        {
+            return new GraphViewModel(400, 280, [], []);
+        }
+
+        var orderedNodes = treeNodes
+            .OrderBy(node => node.Order)
+            .ThenBy(node => node.Id, StringComparer.Ordinal)
+            .ToArray();
+
+        var byId = orderedNodes.ToDictionary(node => node.Id, node => node, StringComparer.Ordinal);
+        var childrenByParent = orderedNodes
+            .GroupBy(node => node.ParentId ?? string.Empty, StringComparer.Ordinal)
+            .ToDictionary(
+                group => group.Key,
+                group => group.OrderBy(node => node.Order).ThenBy(node => node.Id, StringComparer.Ordinal).ToArray(),
+                StringComparer.Ordinal);
+
+        var roots = orderedNodes
+            .Where(node => string.IsNullOrEmpty(node.ParentId) || (node.ParentId is not null && !byId.ContainsKey(node.ParentId)))
+            .OrderBy(node => node.Order)
+            .ThenBy(node => node.Id, StringComparer.Ordinal)
+            .ToArray();
+
+        var positions = new Dictionary<string, (double X, int Depth)>(StringComparer.Ordinal);
+        var nextLeafIndex = 0.0;
+
+        foreach (var root in roots)
+        {
+            LayoutTreeNode(root.Id, 0, childrenByParent, positions, ref nextLeafIndex);
+            nextLeafIndex += 1.0;
+        }
+
+        var nodes = orderedNodes
+            .Select(node =>
+            {
+                var position = positions[node.Id];
+                return new GraphNodeViewModel(
+                    node.Id,
+                    node.Label,
+                    padding + (position.X * horizontalSpacing),
+                    padding + (position.Depth * verticalSpacing),
+                    nodeRadius,
+                    nodeRadius,
+                    node.IsPartOfSolution);
+            })
+            .ToArray();
+
+        var edges = orderedNodes
+            .Where(node => !string.IsNullOrEmpty(node.ParentId) && byId.ContainsKey(node.ParentId!))
+            .Select(node =>
+            {
+                var parent = byId[node.ParentId!];
+                var parentPosition = positions[parent.Id];
+                var childPosition = positions[node.Id];
+                var parentX = padding + (parentPosition.X * horizontalSpacing);
+                var parentY = padding + (parentPosition.Depth * verticalSpacing);
+                var childX = padding + (childPosition.X * horizontalSpacing);
+                var childY = padding + (childPosition.Depth * verticalSpacing);
+                var edgeKey = $"{parent.Id}->{node.Id}";
+
+                return new GraphEdgeViewModel(
+                    edgeKey,
+                    parent.Id,
+                    node.Id,
+                    node.EdgeLabel,
+                    $"M {parentX.ToString("0.##", CultureInfo.InvariantCulture)} {parentY.ToString("0.##", CultureInfo.InvariantCulture)} L {childX.ToString("0.##", CultureInfo.InvariantCulture)} {childY.ToString("0.##", CultureInfo.InvariantCulture)}",
+                    (parentX + childX) / 2.0,
+                    (parentY + childY) / 2.0,
+                    node.IsPartOfSolution);
+            })
+            .ToArray();
+
+        var maxX = nodes.Max(node => node.CenterX);
+        var maxY = nodes.Max(node => node.CenterY);
+
+        return new GraphViewModel(maxX + padding, maxY + padding, nodes, edges);
+    }
+
     public static IReadOnlyList<GraphStateViewModel> BuildMinimumSpanningTreeStates(
         IUndirectedGraph<string, ITaggedEdge<string, double>> graph,
         IReadOnlyList<ITaggedEdge<string, double>> orderedSolutionEdges)
@@ -164,6 +250,36 @@ public static class GraphViewFactory
             successorEdgeKeys.OrderBy(edgeKey => edgeKey, StringComparer.Ordinal).ToArray(),
             directedActiveEdgeIds.ToArray(),
             directedSuccessorEdgeIds.OrderBy(edgeId => edgeId, StringComparer.Ordinal).ToArray());
+    }
+
+    private static double LayoutTreeNode(
+        string nodeId,
+        int depth,
+        IReadOnlyDictionary<string, TreeLayoutNode[]> childrenByParent,
+        IDictionary<string, (double X, int Depth)> positions,
+        ref double nextLeafIndex)
+    {
+        var children = childrenByParent.TryGetValue(nodeId, out var childNodes)
+            ? childNodes
+            : [];
+
+        if (children.Length == 0)
+        {
+            var xLeaf = nextLeafIndex;
+            nextLeafIndex += 1.0;
+            positions[nodeId] = (xLeaf, depth);
+            return xLeaf;
+        }
+
+        var childXs = new List<double>(children.Length);
+        foreach (var child in children)
+        {
+            childXs.Add(LayoutTreeNode(child.Id, depth + 1, childrenByParent, positions, ref nextLeafIndex));
+        }
+
+        var x = childXs.Average();
+        positions[nodeId] = (x, depth);
+        return x;
     }
 
     private static (string From, string To) ResolveOrientation(HashSet<string> activeNodeIds, string source, string target)
