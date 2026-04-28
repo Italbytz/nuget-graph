@@ -126,3 +126,34 @@ public sealed class GraphEdgeViewModel
 
     public bool IsPartOfSolution { get; }
 }
+
+public sealed class TreeLayoutNode
+{
+    public TreeLayoutNode(
+        string id,
+        string label,
+        string? parentId,
+        string edgeLabel,
+        bool isPartOfSolution,
+        int order = 0)
+    {
+        Id = id;
+        Label = label;
+        ParentId = parentId;
+        EdgeLabel = edgeLabel;
+        IsPartOfSolution = isPartOfSolution;
+        Order = order;
+    }
+
+    public string Id { get; }
+
+    public string Label { get; }
+
+    public string? ParentId { get; }
+
+    public string EdgeLabel { get; }
+
+    public bool IsPartOfSolution { get; }
+
+    public int Order { get; }
+}
