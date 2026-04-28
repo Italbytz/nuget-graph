@@ -73,6 +73,11 @@
     background: #fff;
 }
 
+.tree-slider {
+    width: 100%;
+    max-width: 22rem;
+}
+
 .button-row {
     grid-template-columns: repeat(auto-fit, minmax(10rem, max-content));
     align-content: end;
