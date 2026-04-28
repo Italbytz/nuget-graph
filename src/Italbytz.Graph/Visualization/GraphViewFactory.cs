@@ -19,7 +19,9 @@ public static class GraphViewFactory
         double horizontalSpacing = 120.0,
         double verticalSpacing = 140.0,
         double nodeRadius = 24.0,
-        double padding = 40.0)
+        double padding = 40.0,
+        double rootSpacing = 1.0,
+        TreeLayoutOrientation orientation = TreeLayoutOrientation.TopDown)
     {
         if (treeNodes.Count == 0)
         {
@@ -51,18 +53,19 @@ public static class GraphViewFactory
         foreach (var root in roots)
         {
             LayoutTreeNode(root.Id, 0, childrenByParent, positions, ref nextLeafIndex);
-            nextLeafIndex += 1.0;
+            nextLeafIndex += Math.Max(0.0, rootSpacing);
         }
 
         var nodes = orderedNodes
             .Select(node =>
             {
                 var position = positions[node.Id];
+                var (centerX, centerY) = ProjectTreePoint(position.X, position.Depth, horizontalSpacing, verticalSpacing, padding, orientation);
                 return new GraphNodeViewModel(
                     node.Id,
                     node.Label,
-                    padding + (position.X * horizontalSpacing),
-                    padding + (position.Depth * verticalSpacing),
+                    centerX,
+                    centerY,
                     nodeRadius,
                     nodeRadius,
                     node.IsPartOfSolution);
@@ -76,10 +79,8 @@ public static class GraphViewFactory
                 var parent = byId[node.ParentId!];
                 var parentPosition = positions[parent.Id];
                 var childPosition = positions[node.Id];
-                var parentX = padding + (parentPosition.X * horizontalSpacing);
-                var parentY = padding + (parentPosition.Depth * verticalSpacing);
-                var childX = padding + (childPosition.X * horizontalSpacing);
-                var childY = padding + (childPosition.Depth * verticalSpacing);
+                var (parentX, parentY) = ProjectTreePoint(parentPosition.X, parentPosition.Depth, horizontalSpacing, verticalSpacing, padding, orientation);
+                var (childX, childY) = ProjectTreePoint(childPosition.X, childPosition.Depth, horizontalSpacing, verticalSpacing, padding, orientation);
                 var edgeKey = $"{parent.Id}->{node.Id}";
 
                 return new GraphEdgeViewModel(
@@ -97,7 +98,11 @@ public static class GraphViewFactory
         var maxX = nodes.Max(node => node.CenterX);
         var maxY = nodes.Max(node => node.CenterY);
 
-        return new GraphViewModel(maxX + padding, maxY + padding, nodes, edges);
+        return new GraphViewModel(
+            Math.Max(400, maxX + padding),
+            Math.Max(280, maxY + padding),
+            nodes,
+            edges);
     }
 
     public static IReadOnlyList<GraphStateViewModel> BuildMinimumSpanningTreeStates(
@@ -280,6 +285,25 @@ public static class GraphViewFactory
         var x = childXs.Average();
         positions[nodeId] = (x, depth);
         return x;
+    }
+
+    private static (double X, double Y) ProjectTreePoint(
+        double breadth,
+        int depth,
+        double horizontalSpacing,
+        double verticalSpacing,
+        double padding,
+        TreeLayoutOrientation orientation)
+    {
+        return orientation switch
+        {
+            TreeLayoutOrientation.LeftToRight => (
+                padding + (depth * verticalSpacing),
+                padding + (breadth * horizontalSpacing)),
+            _ => (
+                padding + (breadth * horizontalSpacing),
+                padding + (depth * verticalSpacing))
+        };
     }
 
     private static (string From, string To) ResolveOrientation(HashSet<string> activeNodeIds, string source, string target)
