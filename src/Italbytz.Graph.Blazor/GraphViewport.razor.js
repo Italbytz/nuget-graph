@@ -46,6 +46,12 @@ export function initialize(host) {
             return;
         }
 
+        const target = event.target;
+        // Preserve click selection on nodes/edges and their labels.
+        if (target instanceof Element && target.closest('.graph-node, .graph-edge')) {
+            return;
+        }
+
         state.pointerId = event.pointerId;
         state.lastX = event.clientX;
         state.lastY = event.clientY;
