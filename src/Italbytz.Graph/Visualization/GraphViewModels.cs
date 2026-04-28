@@ -2,6 +2,12 @@ using System.Collections.Generic;
 
 namespace Italbytz.Graph.Visualization;
 
+public enum TreeLayoutOrientation
+{
+    TopDown,
+    LeftToRight
+}
+
 public sealed class GraphViewModel
 {
     public GraphViewModel(double viewBoxWidth, double viewBoxHeight, IReadOnlyList<GraphNodeViewModel> nodes, IReadOnlyList<GraphEdgeViewModel> edges)
